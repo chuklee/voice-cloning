@@ -1,0 +1,11 @@
+services:
+  jupyter:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./notebooks:/home/jovyan/work  # Mount a local directory for notebooks
+    environment:
+      - JUPYTER_ENABLE_LAB=yes  # Optional: Enable JupyterLab
