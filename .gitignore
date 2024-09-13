@@ -15,3 +15,5 @@
 
 # Ignore static files
 /client/public/static/
+
+/venv
