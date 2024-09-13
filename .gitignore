@@ -17,3 +17,4 @@
 /client/public/static/
 
 /venv
+.env

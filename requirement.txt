@@ -1,2 +1,10 @@
 yt_dlp
 flask
+groq==0.11.0
+librosa==0.10.2.post1
+soundfile==0.12.1
+langchain==0.2.16
+langchain-community==0.2.17
+langchain-core==0.2.40
+langchain-groq==0.1.10
+pydantic-settings==2.5.2
