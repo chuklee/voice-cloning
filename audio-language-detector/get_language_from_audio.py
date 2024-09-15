@@ -6,10 +6,26 @@ import soundfile as sf
 from langchain_groq import ChatGroq
 from langchain.prompts import ChatPromptTemplate
 from config.settings import settings
+from flask import Flask, request, jsonify  # Added Flask imports
+from flask_cors import CORS
 
-# Set up Groq API client
 client = Groq(api_key=settings.GROQ_API_KEY)
 
+app = Flask(__name__)
+CORS(app)
+
+@app.route('/get-audio-language', methods=['GET'])
+def get_audio_language():
+    audio_path = request.args.get('audio_path')
+    if not audio_path:
+        return jsonify({"error": "audio_path parameter is required"}), 400
+
+    try:
+        transcript: str = audio_to_text(filepath=audio_path)
+        language_code: str = detect_language(transcript=transcript)
+        return jsonify({"language_code": language_code})  # Return the detected language code
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 def audio_to_text(filepath) -> str:
     try:
@@ -81,5 +97,4 @@ def main(audio_path):
 
 
 if __name__ == "__main__":
-    audio_file: str = settings.PATH_TO_AUDIO_FILE
-    main(audio_path=audio_file)
+    app.run(host='0.0.0.0', port=4444, debug=True)

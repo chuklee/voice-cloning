@@ -1,11 +1,25 @@
 services:
-  jupyter:
+  audio-language-detector:
     build:
-      context: .
+      context: ./audio-language-detector
       dockerfile: Dockerfile
     ports:
-      - "8000:8000"
-    volumes:
-      - ./notebooks:/home/jovyan/work  # Mount a local directory for notebooks
+      - "4444:4444"
     environment:
-      - JUPYTER_ENABLE_LAB=yes  # Optional: Enable JupyterLab
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - PATH_TO_AUDIO_FILE=${PATH_TO_AUDIO_FILE}
+      - GROQ_MODEL_NAME=${GROQ_MODEL_NAME}
+
+  youtube-converter:
+    build:
+      context: ./youtube-converter
+      dockerfile: Dockerfile
+    ports:
+      - "3333:3333"
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"

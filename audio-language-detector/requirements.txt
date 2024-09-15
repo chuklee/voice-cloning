@@ -1,5 +1,5 @@
-yt_dlp
-flask
+flask==3.0.3
+flask-cors==4.0.0
 groq==0.11.0
 librosa==0.10.2.post1
 soundfile==0.12.1
