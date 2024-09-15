@@ -83,6 +83,8 @@ export default function HomePage() {
           <YoutubeTemplateCard
             key={index}
             index={index}
+            isFirst={index === 0}
+            isLast={index === youtubeVideosExamples.length - 1}
             setVideoUrl={setVideoUrl}
             thumbnailUrl={thumbnailUrl}
             videoUrl={videoUrl}
@@ -156,6 +158,8 @@ interface YoutubeTemplateCardProps {
   setVideoUrl: React.Dispatch<React.SetStateAction<string>>;
   thumbnailUrl: string;
   videoUrl: string;
+  isFirst: boolean;
+  isLast: boolean;
 }
 
 function YoutubeTemplateCard({
@@ -163,6 +167,8 @@ function YoutubeTemplateCard({
   setVideoUrl,
   thumbnailUrl,
   videoUrl,
+  isFirst,
+  isLast,
 }: YoutubeTemplateCardProps) {
   return (
     <motion.div
@@ -176,7 +182,11 @@ function YoutubeTemplateCard({
       onClick={() => setVideoUrl(videoUrl)}
       className='relative transform transition-transform duration-300 cursor-pointer ease-in-out hover:scale-105'
     >
-      <div className='relative border-2 border-gray-300 hover:border-gray-800/50 shadow-gray-800/50 shadow-xl rounded-xl transform transition-transform duration-300 overflow-hidden ease-in-out hover:scale-105'>
+      <div
+        className={`relative shadow-lg shadow-red-800/60 rounded-xl transform transition-transform duration-300 overflow-hidden ease-in-out hover:scale-105 hover:rotate-[${
+          isFirst ? 2 : isLast ? -2 : 0
+        }deg]`}
+      >
         <Image
           src={thumbnailUrl}
           alt='thumbnail'
@@ -184,7 +194,7 @@ function YoutubeTemplateCard({
           height={850}
           className='rounded-xl'
         />
-        <div className='absolute inset-0 bg-gradient-to-t from-blue-900/50 to-transparent pointer-events-none'></div>
+        <div className='absolute inset-0 bg-gradient-to-t from-blue-900/35 hover:from-blue-900/10 to-transparent pointer-events-none'></div>
       </div>
     </motion.div>
   );
