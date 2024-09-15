@@ -2,10 +2,10 @@
 
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowUp, Loader2 } from 'lucide-react';
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Copy, Loader2 } from 'lucide-react';
 import Image from 'next/image';
+import { useState } from 'react';
 
 const youtubeVideosExamples = [
   {
@@ -82,6 +82,7 @@ export default function HomePage() {
         {youtubeVideosExamples.map(({ videoUrl, thumbnailUrl }, index) => (
           <YoutubeTemplateCard
             key={index}
+            disabled={loading}
             index={index}
             isFirst={index === 0}
             isLast={index === youtubeVideosExamples.length - 1}
@@ -94,7 +95,7 @@ export default function HomePage() {
 
       <AnimatePresence>
         {loading && (
-          <div className='flex justify-center items-center space-x-2'>
+          <div className='flex justify-center items-center space-x-2 pt-10'>
             <span className='sr-only'>Loading...</span>
             <div className='bg-black/20 rounded-full w-4 h-4 animate-bounce [animation-delay:-0.3s]'></div>
             <div className='bg-black/20 rounded-full w-4 h-4 animate-bounce [animation-delay:-0.15s]'></div>
@@ -106,7 +107,7 @@ export default function HomePage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            className='mt-2 text-gray-800'
+            className='mt-2 pt-10 text-gray-800'
           >
             {reponseError ? (
               <div className='text-red-500'>{reponseError}</div>
@@ -121,13 +122,13 @@ export default function HomePage() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.5 }}
-        className='flex justify-center items-center p-4 w-[45%]'
+        className='flex justify-center items-center p-4 pt-20 w-[45%] scale-110'
       >
         <Textarea
           onKeyDown={handleKeyDown}
           value={videoUrl}
           onChange={handleChange}
-          className='bg-gray-50 shadow-sm rounded-2xl min-h-0 text-gray-500 overflow-x-auto resize-none'
+          className='bg-gray-50 shadow-blue-900/20 shadow-sm rounded-2xl min-h-0 text-gray-500 overflow-x-auto resize-none'
           placeholder='Enter a YouTube video URL here!'
           rows={1}
           style={{
@@ -140,13 +141,16 @@ export default function HomePage() {
         <Button
           disabled={!videoUrl || loading}
           onClick={handleSend}
-          className='shadow-sm ml-4 rounded-2xl w-12 h-12'
+          className='flex flex-row justify-between shadow-sm ml-4 rounded-2xl h-12'
         >
-          {loading ? (
-            <Loader2 className='animate-spin' size={24} color='white' />
-          ) : (
-            <ArrowUp size={24} color='white' />
-          )}
+          <div className='flex justify-center items-center'>Clone voice</div>
+          <div className='flex'>
+            {loading ? (
+              <Loader2 className='animate-spin' size={24} color='white' />
+            ) : (
+              <Copy size={24} color='white' />
+            )}
+          </div>
         </Button>
       </motion.div>
     </div>
@@ -160,6 +164,7 @@ interface YoutubeTemplateCardProps {
   videoUrl: string;
   isFirst: boolean;
   isLast: boolean;
+  disabled: boolean;
 }
 
 function YoutubeTemplateCard({
@@ -169,23 +174,23 @@ function YoutubeTemplateCard({
   videoUrl,
   isFirst,
   isLast,
+  disabled,
 }: YoutubeTemplateCardProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0 }}
       transition={{
         duration: 0.3,
         delay: 0.2 + index / 10,
         type: 'just',
       }}
-      onClick={() => setVideoUrl(videoUrl)}
+      onClick={() => !disabled && setVideoUrl(videoUrl)}
       className='relative transform transition-transform duration-300 cursor-pointer ease-in-out hover:scale-105'
     >
       <div
-        className={`relative shadow-lg shadow-red-800/60 rounded-xl transform transition-transform duration-300 overflow-hidden ease-in-out hover:scale-105 hover:rotate-[${
-          isFirst ? 2 : isLast ? -2 : 0
-        }deg]`}
+        className={`relative shadow-lg shadow-red-800/60 rounded-xl transform transition-transform duration-300 overflow-hidden ease-in-out hover:scale-105 hover:rotate-[${isFirst ? -5 : isLast ? 5 : 0}deg]`}
       >
         <Image
           src={thumbnailUrl}
