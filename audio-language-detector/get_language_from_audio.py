@@ -16,7 +16,7 @@ CORS(app)
 
 @app.route('/get-audio-language', methods=['GET'])
 def get_audio_language():
-    audio_path = request.args.get('audio_path')
+    audio_path = '/app/common/audio.wav'
     if not audio_path:
         return jsonify({"error": "audio_path parameter is required"}), 400
 
@@ -29,11 +29,9 @@ def get_audio_language():
 
 def audio_to_text(filepath) -> str:
     try:
-        # Get the absolute path of the file
-        abs_filepath = os.path.abspath(path=filepath)
         print("Attempting to load audio file with librosa...")
         audio, sr = librosa.load(
-            path=abs_filepath, sr=None, duration=180
+            path=filepath, sr=None, duration=180
         )  # Load up to 3 minutes
         print("Successfully loaded audio file")
 
@@ -53,10 +51,10 @@ def audio_to_text(filepath) -> str:
 
         return translation.text
     except FileNotFoundError:
-        print(f"Error: The file '{abs_filepath}' was not found.")
+        print(f"Error: The file '{filepath}' was not found.")
         raise FileNotFoundError
     except PermissionError:
-        print(f"Error: Permission denied when trying to access '{abs_filepath}'.")
+        print(f"Error: Permission denied when trying to access '{filepath}'.")
         raise PermissionError
     except Exception as e:
         print(f"An error occurred while processing the audio: {str(e)}")

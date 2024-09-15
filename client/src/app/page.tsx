@@ -1,11 +1,5 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { ArrowUp, Loader2 } from 'lucide-react';
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import Image from 'next/image';
 import { AuroraBackground } from '@/components/ui/aurora-background';
 import HomePage from './home-page';
 

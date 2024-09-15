@@ -7,8 +7,9 @@ services:
       - "4444:4444"
     environment:
       - GROQ_API_KEY=${GROQ_API_KEY}
-      - PATH_TO_AUDIO_FILE=${PATH_TO_AUDIO_FILE}
       - GROQ_MODEL_NAME=${GROQ_MODEL_NAME}
+    volumes:
+      - common-data:/app/common
 
   youtube-converter:
     build:
@@ -16,6 +17,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3333:3333"
+    volumes:
+      - common-data:/app/common
 
   client:
     build:
@@ -23,3 +26,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
+    volumes:
+      - common-data:/app/common
+volumes:
+  common-data:

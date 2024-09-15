@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, send_file
 import yt_dlp
 from moviepy.editor import AudioFileClip
 import os
+import shutil
 from flask_cors import CORS
 
 app = Flask(__name__)
@@ -46,7 +47,14 @@ def convert_youtube_to_wav():
         audio_file = download_audio_from_youtube(youtube_url)
         wav_file = convert_to_wav(audio_file)
 
-        return send_file(wav_file, as_attachment=True, download_name='audio.wav', mimetype='audio/wav')
+        # Save the WAV file in the "common" folder
+        common_folder_path = '/app/common'  # Use the mounted volume path
+        os.makedirs(common_folder_path, exist_ok=True)
+        
+        # Use shutil.move instead of os.rename
+        shutil.move(wav_file, os.path.join(common_folder_path, 'audio.wav'))
+
+        return jsonify({'message': 'File converted and saved successfully'}), 200
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500

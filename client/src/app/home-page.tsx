@@ -9,17 +9,20 @@ import { useState } from 'react';
 
 const youtubeVideosExamples = [
   {
-    videoUrl:
-      'https://www.youtube.com/watch?v=DteuaGMck4k&list=PLTYUE9O6WCrin42VsDN7JaZV0rpSOn2j2',
-    thumbnailUrl: 'http://img.youtube.com/vi/DteuaGMck4k/maxresdefault.jpg',
+    videoUrl: 'https://www.youtube.com/watch?v=2Ila5jNA58g',
+    thumbnailUrl: 'http://img.youtube.com/vi/2Ila5jNA58g/maxresdefault.jpg',
   },
   {
-    videoUrl: 'https://www.youtube.com/watch?v=wCRWEKPfLmM',
+    videoUrl: 'https://www.youtube.com/watch?v=zVLDqBoegGI',
+    thumbnailUrl: 'http://img.youtube.com/vi/zVLDqBoegGI/maxresdefault.jpg',
+  },
+  {
+    videoUrl: 'https://www.youtube.com/watch?v=wCRWEKPfLmM&t=19s',
     thumbnailUrl: 'http://img.youtube.com/vi/wCRWEKPfLmM/maxresdefault.jpg',
   },
   {
-    videoUrl: 'https://www.youtube.com/watch?v=mqcnM5BATIQ',
-    thumbnailUrl: 'http://img.youtube.com/vi/mqcnM5BATIQ/maxresdefault.jpg',
+    videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    thumbnailUrl: 'http://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
   },
 ];
 
@@ -28,37 +31,62 @@ export default function HomePage() {
   const [reponseError, setResponseError] = useState('');
   const [responseOk, setResponseOk] = useState<any | null>(null);
   const [videoUrl, setVideoUrl] = useState('');
+  const [innerOperationMessage, setInnerOperationMessage] = useState('');
 
-  const handleSend = async () => {
+  const handleSubmit = async () => {
     setLoading(true);
     setResponseError('');
+    setInnerOperationMessage('Fetching audio from Youtube video...');
 
     try {
-      const llmResponse = await fetch('http://localhost:8000/', {
+      await fetch('http://localhost:3333/convert', {
         method: 'POST',
-        body: JSON.stringify({ text: videoUrl }),
+        body: JSON.stringify({ youtube_url: videoUrl }),
         headers: {
           'Content-Type': 'application/json',
         },
       });
-      const llmResponseJson = await llmResponse.json();
-      if (llmResponseJson.error) {
-        setResponseError('Planning solver failed: ' + llmResponseJson.error);
+      setInnerOperationMessage(
+        prev => prev + '✅\nUnderstanding the language...',
+      );
+
+      // {
+      //     "language_code": "en"
+      const languageResponse = await fetch(
+        'http://localhost:4444/get-audio-language',
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+
+      const languageResponseJson = await languageResponse.json();
+
+      if (!languageResponseJson.language_code) {
+        setResponseError('Language not detected');
         setLoading(false);
+        setInnerOperationMessage('');
         return;
       }
-      setResponseOk(llmResponseJson);
-      setLoading(false);
+
+      const languageCode = languageResponseJson.language_code;
+
+      setInnerOperationMessage(
+        prev => prev + '(' + languageCode + ') ' + '✅\nCloning voice...',
+      );
     } catch (error) {
       setResponseError('Planning solver failed: ' + error);
       setLoading(false);
+      setInnerOperationMessage('');
     }
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key === 'Enter' && videoUrl) {
       event.preventDefault();
-      handleSend();
+      handleSubmit();
     }
   };
 
@@ -116,6 +144,19 @@ export default function HomePage() {
             )}
           </motion.div>
         )}
+
+        {innerOperationMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className='mt-10 p-2 rounded-xl text-gray-800 animate-pulse pointer-events-none'
+          >
+            {innerOperationMessage.split('\n').map((line, index) => (
+              <div key={index}>{line}</div>
+            ))}
+          </motion.div>
+        )}
       </AnimatePresence>
 
       <motion.div
@@ -140,8 +181,8 @@ export default function HomePage() {
         />
         <Button
           disabled={!videoUrl || loading}
-          onClick={handleSend}
-          className='flex flex-row justify-between shadow-sm ml-4 rounded-2xl h-12'
+          onClick={handleSubmit}
+          className='flex flex-row justify-center gap-2 shadow-sm ml-4 rounded-2xl h-12'
         >
           <div className='flex justify-center items-center'>Clone voice</div>
           <div className='flex'>
@@ -190,7 +231,7 @@ function YoutubeTemplateCard({
       className='relative transform transition-transform duration-300 cursor-pointer ease-in-out hover:scale-105'
     >
       <div
-        className={`relative shadow-lg shadow-red-800/60 rounded-xl transform transition-transform duration-300 overflow-hidden ease-in-out hover:scale-105 hover:rotate-[${isFirst ? -5 : isLast ? 5 : 0}deg]`}
+        className={`relative shadow-lg shadow-blue-700/40 rounded-xl transform transition-transform duration-300 overflow-hidden ease-in-out hover:scale-105 hover:rotate-[${isFirst ? -5 : isLast ? 5 : 0}deg]`}
       >
         <Image
           src={thumbnailUrl}
