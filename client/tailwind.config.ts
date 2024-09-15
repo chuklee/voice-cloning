@@ -11,6 +11,11 @@ const config = {
     './app/**/*.{ts,tsx}',
     './src/**/*.{ts,tsx}',
   ],
+  safelist: [
+    {
+      pattern: /rotate-\[.*deg\]/,
+    },
+  ],
   prefix: '',
   theme: {
     container: {
