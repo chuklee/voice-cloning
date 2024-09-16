@@ -3,9 +3,9 @@
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Copy, Loader2 } from 'lucide-react';
+import { ArrowUp, Copy, DownloadIcon, Loader2, Play } from 'lucide-react';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useRef, useState, useContext } from 'react';
 
 const youtubeVideosExamples = [
   {
@@ -32,10 +32,15 @@ export default function HomePage() {
   const [responseOk, setResponseOk] = useState<any | null>(null);
   const [videoUrl, setVideoUrl] = useState('');
   const [innerOperationMessage, setInnerOperationMessage] = useState('');
+  const [audioLanguage, setAudioLanguage] = useState('');
+  const [cloningLoading, setCloningLoading] = useState(false);
+  const [audioPlayerReady, setAudioPlayerReady] = useState(false);
 
   const handleSubmit = async () => {
     setLoading(true);
+    setAudioPlayerReady(false);
     setResponseError('');
+    setAudioLanguage('');
     setInnerOperationMessage('Fetching audio from Youtube video...');
 
     try {
@@ -72,9 +77,15 @@ export default function HomePage() {
       }
 
       const languageCode = languageResponseJson.language_code;
+      setAudioLanguage(languageCode);
 
       setInnerOperationMessage(
-        prev => prev + '(' + languageCode + ') ' + '✅\nCloning voice...',
+        prev =>
+          prev +
+          '(' +
+          languageCode +
+          ') ' +
+          '✅\nCloning ready. Waiting for text...',
       );
     } catch (error) {
       setResponseError('Planning solver failed: ' + error);
@@ -92,6 +103,36 @@ export default function HomePage() {
 
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setVideoUrl(event.target.value.trim());
+  };
+  const handleCloneSubmit = async (text: string) => {
+    setLoading(true);
+    setCloningLoading(true);
+    setAudioPlayerReady(false);
+    setInnerOperationMessage(
+      prev => prev + '✅\nCloning voice for "' + text + '"...',
+    );
+    try {
+      await fetch('http://localhost:5555/clone-voice', {
+        method: 'POST',
+        body: JSON.stringify({
+          text: text,
+          language: audioLanguage,
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      setInnerOperationMessage(
+        prev => prev + '✅\nVoice cloned ! Press play to listen',
+      );
+      setAudioPlayerReady(true);
+      setCloningLoading(false);
+      setLoading(false);
+    } catch (error) {
+      setResponseError('Cloning voice failed: ' + JSON.stringify(error));
+      setLoading(false);
+      setAudioPlayerReady(false);
+    }
   };
 
   return (
@@ -194,7 +235,86 @@ export default function HomePage() {
           </div>
         </Button>
       </motion.div>
+      {audioLanguage && (
+        <CloneTextInput
+          initialValue={'Hello, world!'}
+          onSend={handleCloneSubmit}
+          loading={cloningLoading}
+        />
+      )}
+      {audioPlayerReady && <CloneAudioPlayer />}
     </div>
+  );
+}
+
+function CloneAudioPlayer() {
+  return (
+    <div className='flex items-center'>
+      <audio controls className='mr-4'>
+        <source src='/api/audio' type='audio/wav' />
+        Your browser does not support the audio element.
+      </audio>
+      <a href='/api/audio' download>
+        <DownloadIcon size={24} color='rgb(75 85 90)' />
+      </a>
+    </div>
+  );
+}
+
+interface CloneTextInputProps {
+  initialValue: string;
+  onSend: (text: string) => void;
+  loading: boolean;
+}
+
+function CloneTextInput({
+  initialValue,
+  onSend,
+  loading,
+}: CloneTextInputProps) {
+  const [value, setValue] = useState(initialValue);
+  const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === 'Enter' && event.ctrlKey && value) {
+      event.preventDefault();
+      onSend(value);
+    }
+  };
+  const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setValue(event.target.value);
+  };
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5, delay: 0.5 }}
+      className='flex justify-center items-center p-4 rounded-lg w-[45%]'
+    >
+      <div className='flex items-center w-3/4'>
+        <Textarea
+          onKeyDown={handleKeyDown}
+          ref={textAreaRef}
+          value={value}
+          className='bg-gray-50 shadow-sm rounded-2xl text-gray-500 overflow-hidden resize-none'
+          placeholder='Type your planning problem here !'
+          onChange={handleChange}
+        />
+      </div>
+      <Button
+        disabled={!value || loading}
+        title='CTRL + Enter to send'
+        variant={'default'}
+        onClick={() => onSend(value)}
+        className='flex justify-center items-center shadow-sm ml-4 rounded-2xl w-12 h-12'
+      >
+        {loading ? (
+          <Loader2 className='animate-spin' size={24} color='white' />
+        ) : (
+          <ArrowUp size={24} color='white' />
+        )}
+      </Button>
+    </motion.div>
   );
 }
 
@@ -231,7 +351,7 @@ function YoutubeTemplateCard({
       className='relative transform transition-transform duration-300 cursor-pointer ease-in-out hover:scale-105'
     >
       <div
-        className={`relative shadow-lg shadow-blue-700/40 rounded-xl transform transition-transform duration-300 overflow-hidden ease-in-out hover:scale-105 hover:rotate-[${isFirst ? -5 : isLast ? 5 : 0}deg]`}
+        className={`relative shadow-lg shadow-blue-700/40 rounded-xl transform transition-transform duration-300 overflow-hidden ease-in-out hover:scale-105 ${isFirst ? 'hover:rotate-[-3deg]' : isLast ? 'hover:rotate-[3deg]' : 'hover:rotate-0'}`}
       >
         <Image
           src={thumbnailUrl}
