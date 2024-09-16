@@ -28,5 +28,15 @@ services:
       - "3000:3000"
     volumes:
       - common-data:/app/common
+
+  tts-executor:
+    build:
+      context: ./TTS-executor
+      dockerfile: Dockerfile
+    ports:
+      - "5555:5555"
+    volumes:
+      - common-data:/app/common
+
 volumes:
   common-data:
