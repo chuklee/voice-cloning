@@ -9,20 +9,20 @@ import { useRef, useState, useContext } from 'react';
 
 const youtubeVideosExamples = [
   {
-    videoUrl: 'https://www.youtube.com/watch?v=2Ila5jNA58g',
-    thumbnailUrl: 'http://img.youtube.com/vi/2Ila5jNA58g/maxresdefault.jpg',
+    videoUrl: 'https://www.youtube.com/watch?v=Bo-SWglfNZY',
+    thumbnailUrl: 'http://img.youtube.com/vi/Bo-SWglfNZY/maxresdefault.jpg',
   },
   {
-    videoUrl: 'https://www.youtube.com/watch?v=zVLDqBoegGI',
-    thumbnailUrl: 'http://img.youtube.com/vi/zVLDqBoegGI/maxresdefault.jpg',
+    videoUrl: 'https://www.youtube.com/watch?v=i9TOYfoV_2o',
+    thumbnailUrl: 'http://img.youtube.com/vi/i9TOYfoV_2o/maxresdefault.jpg',
   },
   {
-    videoUrl: 'https://www.youtube.com/watch?v=wCRWEKPfLmM&t=19s',
-    thumbnailUrl: 'http://img.youtube.com/vi/wCRWEKPfLmM/maxresdefault.jpg',
+    videoUrl: 'https://www.youtube.com/watch?v=WnERfBKZlwE',
+    thumbnailUrl: 'http://img.youtube.com/vi/WnERfBKZlwE/maxresdefault.jpg',
   },
   {
-    videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-    thumbnailUrl: 'http://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
+    videoUrl: 'https://www.youtube.com/watch?v=a3ShvjMH5JU',
+    thumbnailUrl: 'https://siecledigital.fr/wp-content/uploads/2016/02/simpsons-live.jpg',
   },
 ];
 
@@ -111,12 +111,19 @@ export default function HomePage() {
     setInnerOperationMessage(
       prev => prev + '✅\nCloning voice for "' + text + '"...',
     );
+    const languageRegex = /\(([^)]+)\)/;
+    const languageMatch = text.match(languageRegex);
+    const overrideLanguage = languageMatch ? languageMatch[1] : '';
+
+    // Si un match est trouvé, supprimer le texte correspondant (avec les parenthèses) du texte
+    const cleanedText = languageMatch ? text.replace(languageRegex, '').trim() : text;
+    console.log(cleanedText, overrideLanguage)
     try {
       await fetch('http://localhost:5555/clone-voice', {
         method: 'POST',
         body: JSON.stringify({
-          text: text,
-          language: audioLanguage,
+          text: cleanedText,
+          language: overrideLanguage || audioLanguage,
         }),
         headers: {
           'Content-Type': 'application/json',

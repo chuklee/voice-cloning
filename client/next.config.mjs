@@ -5,6 +5,9 @@ const nextConfig = {
       {
         hostname: 'img.youtube.com',
       },
+      {
+        hostname: 'siecledigital.fr',
+      }
     ],
   },
 };
