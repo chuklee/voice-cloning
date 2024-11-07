@@ -13,16 +13,17 @@ const youtubeVideosExamples = [
     thumbnailUrl: 'http://img.youtube.com/vi/2Ila5jNA58g/maxresdefault.jpg',
   },
   {
-    videoUrl: 'https://www.youtube.com/watch?v=zVLDqBoegGI',
-    thumbnailUrl: 'http://img.youtube.com/vi/zVLDqBoegGI/maxresdefault.jpg',
+    videoUrl:
+      'https://www.youtube.com/watch?v=Dm27NwstXcY&pp=ygUPZGlzY291cnMgbWFjcm9u',
+    thumbnailUrl: 'http://img.youtube.com/vi/Dm27NwstXcY/maxresdefault.jpg',
   },
   {
-    videoUrl: 'https://www.youtube.com/watch?v=wCRWEKPfLmM&t=19s',
-    thumbnailUrl: 'http://img.youtube.com/vi/wCRWEKPfLmM/maxresdefault.jpg',
+    videoUrl: 'https://www.youtube.com/watch?v=WnERfBKZlwE',
+    thumbnailUrl: 'http://img.youtube.com/vi/WnERfBKZlwE/maxresdefault.jpg',
   },
   {
-    videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-    thumbnailUrl: 'http://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
+    videoUrl: 'https://www.youtube.com/watch?v=8jpVs18FGqA',
+    thumbnailUrl: 'http://img.youtube.com/vi/8jpVs18FGqA/maxresdefault.jpg',
   },
 ];
 
@@ -108,6 +109,10 @@ export default function HomePage() {
     setLoading(true);
     setCloningLoading(true);
     setAudioPlayerReady(false);
+    const languageRegex = /\(([^)]+)\)/;
+    const languageMatch = text.match(languageRegex);
+    const overrideLanguage = languageMatch ? languageMatch[1] : '';
+
     setInnerOperationMessage(
       prev => prev + '✅\nCloning voice for "' + text + '"...',
     );
@@ -116,7 +121,7 @@ export default function HomePage() {
         method: 'POST',
         body: JSON.stringify({
           text: text,
-          language: audioLanguage,
+          language: overrideLanguage || audioLanguage,
         }),
         headers: {
           'Content-Type': 'application/json',
